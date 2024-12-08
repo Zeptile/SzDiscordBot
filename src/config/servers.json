@@ -1,0 +1,16 @@
+{
+  "servers": [
+    {
+      "host": "server1.example.com",
+      "port": 27015,
+      "name": "Server 1"
+    },
+    {
+      "host": "server2.example.com",
+      "port": 27015,
+      "name": "Server 2"
+    }
+  ],
+  "notificationChannelId": "YOUR_CHANNEL_ID_HERE",
+  "playerThresholds": [3, 5, 10]
+}
