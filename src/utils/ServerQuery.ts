@@ -25,36 +25,55 @@ export class ServerQuery {
   }
 
   private parseResponse(buffer: Buffer): ServerInfo {
-    let offset = 6; // Skip header and response type
+    let offset = 5; // Skip header (4 bytes) and response type (1 byte)
 
     const getString = (): string => {
-      let str = "";
-      while (buffer[offset] !== 0x00 && offset < buffer.length) {
-        str += String.fromCharCode(buffer[offset]);
+      const bytes: number[] = [];
+      while (offset < buffer.length && buffer[offset] !== 0x00) {
+        bytes.push(buffer[offset]);
         offset++;
       }
       offset++; // Skip null terminator
-      return str;
+      return Buffer.from(bytes).toString("ascii");
     };
 
     const getByte = (): number => buffer[offset++];
 
-    return {
+    const getShort = (): number => {
+      const value = buffer[offset] | (buffer[offset + 1] << 8);
+      offset += 2;
+      return value;
+    };
+
+    const getCharacter = (): string => {
+      return Buffer.from([buffer[offset++]]).toString("ascii");
+    };
+
+    // Parse in exact same order as C# implementation
+    const info: ServerInfo = {
       protocol: getByte(),
       name: getString(),
       map: getString(),
       folder: getString(),
       game: getString(),
+      id: getShort(), // This was missing before!
       players: getByte(),
       maxPlayers: getByte(),
       bots: getByte(),
-      serverType: String.fromCharCode(getByte()),
-      environment: String.fromCharCode(getByte()),
+      serverType: getCharacter(),
+      environment: getCharacter(),
       visibility: getByte(),
       vac: getByte(),
       version: getString(),
-      port: buffer.readUInt16LE(offset),
     };
+
+    // Handle EDF (Extra Data Flag)
+    const edf = getByte();
+    if ((edf & 0x80) !== 0) {
+      info.port = getShort();
+    }
+
+    return info;
   }
 
   public async getServerInfo(): Promise<ServerInfo> {

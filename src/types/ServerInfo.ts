@@ -4,6 +4,7 @@ export interface ServerInfo {
   map: string;
   folder: string;
   game: string;
+  id: number;
   players: number;
   maxPlayers: number;
   bots: number;
@@ -12,5 +13,5 @@ export interface ServerInfo {
   visibility: number;
   vac: number;
   version: string;
-  port: number;
+  port?: number;
 }
