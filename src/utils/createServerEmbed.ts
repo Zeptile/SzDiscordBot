@@ -5,12 +5,19 @@ import {
   ButtonStyle,
 } from "discord.js";
 import { ServerInfo } from "../types/ServerInfo";
+import path from "path";
 
 export function createServerEmbed(
   info: ServerInfo,
   host: string,
   port: number
 ) {
+  // Determine the correct asset path based on environment
+  const assetPath =
+    process.env.NODE_ENV === "production"
+      ? path.join(process.cwd(), "dist", "assets", "SZ_LOGO_256.png")
+      : path.join(process.cwd(), "src", "assets", "SZ_LOGO_256.png");
+
   const embed = new EmbedBuilder()
     .setTitle(`Server Info: ${info.name}`)
     .setFields([
@@ -47,7 +54,7 @@ export function createServerEmbed(
     components: [row],
     files: [
       {
-        attachment: "./src/assets/SZ_LOGO_256.png",
+        attachment: assetPath,
         name: "SZ_LOGO_256.png",
       },
     ],
