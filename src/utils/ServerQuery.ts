@@ -49,14 +49,13 @@ export class ServerQuery {
       return Buffer.from([buffer[offset++]]).toString("ascii");
     };
 
-    // Parse in exact same order as C# implementation
     const info: ServerInfo = {
       protocol: getByte(),
       name: getString(),
       map: getString(),
       folder: getString(),
       game: getString(),
-      id: getShort(), // This was missing before!
+      id: getShort(),
       players: getByte(),
       maxPlayers: getByte(),
       bots: getByte(),
