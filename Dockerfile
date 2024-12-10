@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM --platform=linux/amd64 node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -10,13 +10,15 @@ COPY src ./src
 
 RUN npm run build
 
-FROM node:20-alpine AS runner
+FROM --platform=linux/amd64 node:20-alpine AS runner
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --production
+RUN npm ci --only=production
 
 COPY --from=builder /app/dist ./dist
+
+USER node
 
 CMD ["node", "dist/index.js"] 

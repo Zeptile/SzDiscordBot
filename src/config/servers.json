@@ -4,13 +4,13 @@
       "host": "74.82.63.12",
       "port": 27015,
       "name": "Snipin's a good job, mate!",
-      "friendlyName": "All Maps"
+      "friendlyName": "All Maps Server"
     },
     {
       "host": "74.82.63.12",
       "port": 27016,
       "name": "You call that snipin'?",
-      "friendlyName": "Orange Only"
+      "friendlyName": "Orange Only Server"
     }
   ],
   "playerThresholds": [3, 5, 10]
