@@ -35,7 +35,7 @@ async function checkServer(client: Client, server: (typeof config.servers)[0]) {
           !state.notifiedThresholds.has(threshold)
         ) {
           const channel = client.channels.cache.get(
-            config.notificationChannelId
+            process.env.NOTIFICATION_CHANNEL_ID!
           ) as TextChannel;
 
           if (channel) {
