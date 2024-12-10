@@ -2,6 +2,7 @@ import { Client, TextChannel } from "discord.js";
 import { Task } from "../types/Task";
 import { ServerQuery } from "../utils/ServerQuery";
 import config from "../config/servers.json";
+import { createServerEmbed } from "../utils/createServerEmbed";
 
 interface ServerState {
   currentPlayers: number;
@@ -31,20 +32,27 @@ async function checkServer(client: Client, server: (typeof config.servers)[0]) {
     if (playerCount > state.currentPlayers) {
       for (const threshold of config.playerThresholds) {
         if (
-          playerCount >= threshold &&
-          !state.notifiedThresholds.has(threshold)
+          playerCount < threshold ||
+          state.notifiedThresholds.has(threshold)
         ) {
-          const channel = client.channels.cache.get(
-            process.env.NOTIFICATION_CHANNEL_ID!
-          ) as TextChannel;
-
-          if (channel) {
-            await channel.send(
-              `🎮 **${server.name}** has reached ${playerCount} players! (Map: ${info.map})`
-            );
-            state.notifiedThresholds.add(threshold);
-          }
+          continue;
         }
+
+        const channel = client.channels.cache.get(
+          process.env.NOTIFICATION_CHANNEL_ID!
+        ) as TextChannel;
+
+        if (!channel) {
+          console.error("Notification channel not found");
+          continue;
+        }
+
+        await channel.send({
+          content: `🎮 **${server.name}** has reached ${playerCount} players!`,
+          ...createServerEmbed(info, server.host, server.port),
+        });
+
+        state.notifiedThresholds.add(threshold);
       }
     } else if (playerCount < state.currentPlayers) {
       // If player count decreased, only reset thresholds that are now below the current count
