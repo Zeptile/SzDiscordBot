@@ -1,7 +1,9 @@
 import { Client, GatewayIntentBits, REST, Routes } from "discord.js";
 import { config } from "dotenv";
-import commands from "./commands";
+import commands from "./interactions/commands";
 import { initializeTasks } from "./tasks";
+import { handleButtonInteraction } from "./interactions/buttons";
+import { handleCommandInteraction } from "./interactions/commands";
 
 config();
 
@@ -26,19 +28,14 @@ client.once("ready", async () => {
 });
 
 client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
+  if (interaction.isButton()) {
+    await handleButtonInteraction(interaction);
+    return;
+  }
 
-  const command = commands.get(interaction.commandName);
-  if (!command) return;
-
-  try {
-    await command.execute(interaction);
-  } catch (error) {
-    console.error(error);
-    await interaction.reply({
-      content: "There was an error executing this command!",
-      ephemeral: true,
-    });
+  if (interaction.isChatInputCommand()) {
+    await handleCommandInteraction(interaction);
+    return;
   }
 });
 
