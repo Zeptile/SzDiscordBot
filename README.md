@@ -1,6 +1,6 @@
 <div align="center">
   <img src="src/assets/SZ_LOGO_256.png" alt="Source Server Query Bot" width="64" height="64">
-  <h1>Source Server Query Discord Bot</h1>
+  <h1>SnipeZilla's Server Aware Discord bot</h1>
 </div>
 
 A Discord Server Query Bot that implements the Valve Source Engine Query Protocol to fetch information from Source engine game servers (CS:GO, TF2, etc.).
