@@ -10,7 +10,7 @@
       "host": "74.82.63.12",
       "port": 27016,
       "name": "You call that snipin'?",
-      "friendlyName": "Orange Only Server"
+      "friendlyName": "Orange Server"
     }
   ],
   "playerThresholds": [3, 5, 10]
