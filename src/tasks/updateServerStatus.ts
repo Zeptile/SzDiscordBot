@@ -7,7 +7,7 @@ let currentServerIndex = 0;
 
 export const task: Task = {
   name: "updateServerStatus",
-  interval: 60000, // 1 minute
+  interval: 30000, // 30 seconds
 
   async execute(client: Client) {
     try {
@@ -17,7 +17,7 @@ export const task: Task = {
 
       // Get all guilds and update nickname in each one
       client.guilds.cache.forEach(async (guild) => {
-        await guild.members.me?.setNickname(`${server.name}`);
+        await guild.members.me?.setNickname(`${server.friendlyName}`);
       });
 
       client.user?.setActivity({
