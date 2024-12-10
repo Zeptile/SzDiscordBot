@@ -1,44 +1,29 @@
-# Source Server Query Discord Bot
+<div align="center">
+  <img src="src/assets/SZ_LOGO_256.png" alt="Source Server Query Bot" width="64" height="64">
+  <h1>Source Server Query Discord Bot</h1>
+</div>
 
 A Discord Server Query Bot that implements the Valve Source Engine Query Protocol to fetch information from Source engine game servers (CS:GO, TF2, etc.).
 
 ## Features
 
-- `/query` command to get detailed server information including:
-- Current map
-- Player count and bot count
-- Game type and version
-- VAC status
-- Server type
-- Automatic server status monitoring
-- Player count notifications with configurable thresholds
-- Multi-server support
-- Real-time bot username updates showing server status
-- Timeout handling for unresponsive servers
-- Challenge-response protocol support
+### Server Commands
 
-## Features in Detail
+- `/query` - Query any Source engine server via IP or steam:// URL
+- `/servers` - Quick access to predefined server list
 
-### Server Monitoring
+### Real-time Monitoring
 
 - Automatic status updates every 60 seconds
-- Bot username updates to show current player count
-- Monitors multiple servers in rotation
+- Player count notifications with configurable thresholds
+- Bot status shows current server player count and map
 
-### Player Count Notifications
+### Server Info Display
 
-- Configurable player count thresholds
-- Channel notifications when thresholds are reached
-- Automatic threshold reset when player count decreases
-
-### Query Command
-
-The `/query` command provides detailed server information in a clean embed format, including:
-
-- Server name and current map
-- Player counts (total and bots)
-- Game information
-- Server configuration details
+- Current map and game type
+- Player counts with bot detection
+- VAC status and server version
+- One-click join button
 
 ## Requirements
 
@@ -46,26 +31,31 @@ The `/query` command provides detailed server information in a clean embed forma
 - Discord Bot Token
 - Discord Application ID
 
-## Installation
+## Setup
 
 1. Clone the repository
 2. Install dependencies with `npm install`
-3. Create a `.env` file in the root directory with:
+3. Copy .env.example:
+   ```bash
+    cp .env.example .env
    ```
-   DISCORD_TOKEN=your_discord_bot_token
-   CLIENT_ID=your_discord_application_id
+4. Fill in your configuration values in `.env`:
    ```
-4. Configure your servers in `src/config/servers.json`:
+    DISCORD_TOKEN=your_discord_bot_token
+    CLIENT_ID=your_discord_application_id
+    NOTIFICATION_CHANNEL_ID=your_notification_channel_id
+   ```
+5. Configure your servers in `src/config/servers.json`:
    ```json
    {
      "servers": [
        {
          "host": "your-server-host.com",
          "port": 27015,
-         "name": "Server Name"
+         "name": "Server Name",
+         "friendlyName": "Display Name"
        }
      ],
-     "notificationChannelId": "YOUR_DISCORD_CHANNEL_ID",
      "playerThresholds": [3, 5, 10]
    }
    ```
@@ -86,3 +76,22 @@ Build and run the Docker container:
 docker build -t source-server-bot .
 docker run -d --env-file .env source-server-bot
 ```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Troubleshooting
+
+- Ensure all environment variables are set correctly in `.env`
+- Check Discord bot permissions and role hierarchy
+- Verify server ports are accessible from your host
+- Monitor logs for connection errors or timeouts
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
