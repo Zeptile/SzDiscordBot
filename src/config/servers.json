@@ -1,16 +1,17 @@
 {
   "servers": [
     {
-      "host": "server1.example.com",
+      "host": "74.82.63.12",
       "port": 27015,
-      "name": "Server 1"
+      "name": "Snipin's a good job, mate!",
+      "friendlyName": "All Maps"
     },
     {
-      "host": "server2.example.com",
-      "port": 27015,
-      "name": "Server 2"
+      "host": "74.82.63.12",
+      "port": 27016,
+      "name": "You call that snipin'?",
+      "friendlyName": "Orange Only"
     }
   ],
-  "notificationChannelId": "YOUR_CHANNEL_ID_HERE",
   "playerThresholds": [3, 5, 10]
 }
