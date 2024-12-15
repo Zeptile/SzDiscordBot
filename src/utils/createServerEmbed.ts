@@ -34,24 +34,18 @@ export function createServerEmbed(
         value: info.vac ? "Enabled" : "Disabled",
         inline: true,
       },
-      { name: "IP", value: `${host}:${port}`, inline: true },
+      {
+        name: "IP",
+        value: `Join: [${host}:${port}](https://snipezilla.com/steam?${host}:${port})`,
+        inline: true,
+      },
     ])
     .setColor(0xff0000)
     .setThumbnail("attachment://SZ_LOGO_256.png")
     .setTimestamp();
 
-  const connectButton = new ButtonBuilder()
-    .setLabel("Join")
-    .setStyle(ButtonStyle.Success)
-    .setCustomId(`connect_${host}_${port}`);
-
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    connectButton
-  );
-
   return {
     embeds: [embed],
-    components: [row],
     files: [
       {
         attachment: assetPath,
