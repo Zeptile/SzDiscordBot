@@ -15,7 +15,7 @@ export const command: Command = {
         .setRequired(true)
         .addChoices(
           ...config.servers.map((server) => ({
-            name: server.name,
+            name: server.friendlyName,
             value: `${server.host}:${server.port}`,
           }))
         )
