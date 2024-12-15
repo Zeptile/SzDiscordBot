@@ -4,6 +4,7 @@ import commands from "./interactions/commands";
 import { initializeTasks } from "./tasks";
 import { handleButtonInteraction } from "./interactions/buttons";
 import { handleCommandInteraction } from "./interactions/commands";
+import { startHttpServer } from "./http-server";
 
 config();
 
@@ -39,4 +40,5 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
+startHttpServer();
 client.login(process.env.DISCORD_TOKEN);
