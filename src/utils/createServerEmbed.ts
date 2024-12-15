@@ -34,7 +34,7 @@ export function createServerEmbed(
         value: info.vac ? "Enabled" : "Disabled",
         inline: true,
       },
-      { name: "Type", value: info.serverType, inline: true },
+      { name: "IP", value: `${host}:${port}`, inline: true },
     ])
     .setColor(0xff0000)
     .setThumbnail("attachment://SZ_LOGO_256.png")
