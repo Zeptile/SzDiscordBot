@@ -17,9 +17,11 @@
     "dgram": "^1.0.1",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.7",
+    "express": "^4.21.2",
     "typescript": "^5.7.2"
   },
   "devDependencies": {
+    "@types/express": "^5.0.0",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2"
   }
