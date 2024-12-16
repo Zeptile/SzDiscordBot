@@ -1,4 +1,5 @@
 {
+  "baseUrl": "https://snipezilla.com/steam",
   "servers": [
     {
       "host": "64.74.97.164",

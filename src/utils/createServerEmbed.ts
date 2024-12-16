@@ -6,6 +6,7 @@ import {
 } from "discord.js";
 import { ServerInfo } from "../types/ServerInfo";
 import path from "path";
+import serversConfig from "../config/servers.json";
 
 export function createServerEmbed(
   info: ServerInfo,
@@ -18,8 +19,16 @@ export function createServerEmbed(
       ? path.join(process.cwd(), "dist", "assets", "SZ_LOGO_256.png")
       : path.join(process.cwd(), "src", "assets", "SZ_LOGO_256.png");
 
+  const server = serversConfig.servers.find(
+    (s) => s.host === host && s.port === port
+  );
+
+  const ipValue = server
+    ? `Join: [${host}:${port}](${serversConfig.baseUrl}?${host}:${port})`
+    : `${host}:${port}`;
+
   const embed = new EmbedBuilder()
-    .setTitle(`Server Info: ${info.name}`)
+    .setTitle(`Server Info: ${server?.friendlyName ?? info.name}`)
     .setFields([
       { name: "Map", value: info.map, inline: true },
       { name: "Game", value: info.game, inline: true },
@@ -36,7 +45,7 @@ export function createServerEmbed(
       },
       {
         name: "IP",
-        value: `Join: [${host}:${port}](https://snipezilla.com/steam?${host}:${port})`,
+        value: ipValue,
         inline: true,
       },
     ])
