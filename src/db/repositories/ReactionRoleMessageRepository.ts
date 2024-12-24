@@ -1,11 +1,10 @@
-import { InferModel } from "drizzle-orm";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { reactionRoleMessages } from "../schema";
 import { BaseRepository } from "./base/BaseRepository";
 
-export type ReactionRoleMessage = InferModel<typeof reactionRoleMessages>;
-export type NewReactionRoleMessage = InferModel<
-  typeof reactionRoleMessages,
-  "insert"
+export type ReactionRoleMessage = InferSelectModel<typeof reactionRoleMessages>;
+export type NewReactionRoleMessage = InferInsertModel<
+  typeof reactionRoleMessages
 >;
 
 export class ReactionRoleMessageRepository extends BaseRepository<
