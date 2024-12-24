@@ -4,11 +4,18 @@ import commands from "./interactions/commands";
 import { initializeTasks } from "./tasks";
 import { handleButtonInteraction } from "./interactions/buttons";
 import { handleCommandInteraction } from "./interactions/commands";
+import { setupReactionRole } from "./reactions/reactionRole";
+import { initializeDatabase } from "./db";
 
 config();
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildMessages,
+  ],
 });
 
 const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN!);
@@ -20,7 +27,9 @@ client.once("ready", async () => {
     });
     console.log("Bot is ready and commands are registered!");
 
-    // Initialize tasks
+    await initializeDatabase();
+    await setupReactionRole(client);
+
     initializeTasks(client);
   } catch (error) {
     console.error(error);

@@ -5,7 +5,7 @@ import {
   ButtonStyle,
 } from "discord.js";
 import { ServerInfo } from "../types/ServerInfo";
-import path from "path";
+import { getAssetPath } from "./getAssetPath";
 import serversConfig from "../config/servers.json";
 
 export function createServerEmbed(
@@ -13,11 +13,7 @@ export function createServerEmbed(
   host: string,
   port: number
 ) {
-  // Determine the correct asset path based on environment
-  const assetPath =
-    process.env.NODE_ENV === "production"
-      ? path.join(process.cwd(), "dist", "assets", "SZ_LOGO_256.png")
-      : path.join(process.cwd(), "src", "assets", "SZ_LOGO_256.png");
+  const assetPath = getAssetPath("SZ_LOGO_256.png");
 
   const server = serversConfig.servers.find(
     (s) => s.host === host && s.port === port
