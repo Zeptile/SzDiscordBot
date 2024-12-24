@@ -47,7 +47,7 @@ async function getOrCreateRoleMessage(channel: TextChannel) {
     .from(reactionRoleMessages)
     .where(eq(reactionRoleMessages.channelId, channel.id));
 
-  if (results.length <= 0) throw new Error("No reaction role message found");
+  if (results.length <= 0) return await createRoleMessage(channel);
 
   const existingMessage = results[0];
 
@@ -58,9 +58,9 @@ async function getOrCreateRoleMessage(channel: TextChannel) {
     await db
       .delete(reactionRoleMessages)
       .where(eq(reactionRoleMessages.messageId, existingMessage.messageId));
-  }
 
-  return await createRoleMessage(channel);
+    return await createRoleMessage(channel);
+  }
 }
 
 export async function setupReactionRole(client: Client) {
