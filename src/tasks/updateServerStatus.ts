@@ -2,6 +2,7 @@ import { Client, ActivityType } from "discord.js";
 import { Task } from "../types/Task";
 import { ServerQuery } from "../utils/ServerQuery";
 import config from "../config/servers.json";
+import logger from "../utils/logger";
 
 let currentServerIndex = 0;
 
@@ -27,7 +28,7 @@ export const task: Task = {
 
       currentServerIndex = (currentServerIndex + 1) % config.servers.length;
     } catch (error) {
-      console.error("Failed to update status:", error);
+      logger.error("Failed to update status:", error);
     }
   },
 };

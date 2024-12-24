@@ -3,6 +3,8 @@ import { Task } from "../types/Task";
 import { ServerQuery } from "../utils/ServerQuery";
 import config from "../config/servers.json";
 import { createServerEmbed } from "../utils/createServerEmbed";
+import logger from "../utils/logger";
+import { reactionRoleMessageRepository } from "../db/repositories/ReactionRoleMessageRepository";
 
 interface ServerState {
   currentPlayers: number;
@@ -28,7 +30,6 @@ async function checkServer(client: Client, server: (typeof config.servers)[0]) {
     const info = await query.getServerInfo();
     const playerCount = info.players;
 
-    // If player count increased, check thresholds
     if (playerCount > state.currentPlayers) {
       for (const threshold of config.playerThresholds) {
         if (
@@ -43,12 +44,22 @@ async function checkServer(client: Client, server: (typeof config.servers)[0]) {
         ) as TextChannel;
 
         if (!channel) {
-          console.error("Notification channel not found");
+          logger.error("Notification channel not found");
           continue;
         }
 
+        const roleMention = await reactionRoleMessageRepository
+          .findMany({})
+          .then((messages) =>
+            messages[0]?.roleId ? `<@&${messages[0].roleId}> ` : ""
+          )
+          .catch((error) => {
+            logger.error("Failed to get role ID from database:", error);
+            return "";
+          });
+
         await channel.send({
-          content: `🎮 **${server.name}** has reached ${playerCount} players!`,
+          content: `${roleMention}🎮 **${server.name}** has reached ${playerCount} players!`,
           ...createServerEmbed(info, server.host, server.port),
         });
 
@@ -65,7 +76,7 @@ async function checkServer(client: Client, server: (typeof config.servers)[0]) {
 
     state.currentPlayers = playerCount;
   } catch (error) {
-    console.error(`Failed to query ${server.name}:`, error);
+    logger.error(`Failed to query ${server.name}:`, error);
   }
 }
 
