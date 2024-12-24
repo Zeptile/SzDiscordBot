@@ -3,6 +3,7 @@ import { Task } from "../types/Task";
 import { ServerQuery } from "../utils/ServerQuery";
 import config from "../config/servers.json";
 import { createServerEmbed } from "../utils/createServerEmbed";
+import logger from "../utils/logger";
 
 interface ServerState {
   currentPlayers: number;
@@ -43,7 +44,7 @@ async function checkServer(client: Client, server: (typeof config.servers)[0]) {
         ) as TextChannel;
 
         if (!channel) {
-          console.error("Notification channel not found");
+          logger.error("Notification channel not found");
           continue;
         }
 
@@ -65,7 +66,7 @@ async function checkServer(client: Client, server: (typeof config.servers)[0]) {
 
     state.currentPlayers = playerCount;
   } catch (error) {
-    console.error(`Failed to query ${server.name}:`, error);
+    logger.error(`Failed to query ${server.name}:`, error);
   }
 }
 

@@ -6,6 +6,7 @@ import { handleButtonInteraction } from "./interactions/buttons";
 import { handleCommandInteraction } from "./interactions/commands";
 import { setupReactionRole } from "./reactions/reactionRole";
 import { initializeDatabase } from "./db";
+import logger from "./utils/logger";
 
 config();
 
@@ -25,14 +26,18 @@ client.once("ready", async () => {
     await rest.put(Routes.applicationCommands(process.env.CLIENT_ID!), {
       body: [...commands.values()].map((command) => command.data.toJSON()),
     });
-    console.log("Bot is ready and commands are registered!");
+    logger.info("Bot is ready and commands are registered!");
 
     await initializeDatabase();
+    logger.info("Database initialized successfully");
+
     await setupReactionRole(client);
+    logger.info("Reaction roles setup completed");
 
     initializeTasks(client);
+    logger.info("Tasks initialization completed");
   } catch (error) {
-    console.error(error);
+    logger.error("Error during bot initialization:", error);
   }
 });
 

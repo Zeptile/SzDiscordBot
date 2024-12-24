@@ -3,6 +3,7 @@ import { db } from "../db";
 import { reactionRoleMessages } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { getAssetPath } from "../utils/getAssetPath";
+import logger from "../utils/logger";
 
 const REACTION_EMOJI = "🔔";
 const ROLE_MESSAGE_TITLE = "Get Notified";
@@ -68,7 +69,7 @@ export async function setupReactionRole(client: Client) {
   ) as TextChannel;
 
   if (!channel) {
-    console.error("Role channel not found!");
+    logger.error("Role channel not found!");
     return;
   }
 
@@ -86,7 +87,7 @@ export async function setupReactionRole(client: Client) {
     const role = guild.roles.cache.get(process.env.PINGABLE_ROLE_ID!);
 
     if (!role) {
-      console.error("Pingable role not found!");
+      logger.error("Pingable role not found!");
       return;
     }
 
@@ -105,7 +106,7 @@ export async function setupReactionRole(client: Client) {
     const role = guild.roles.cache.get(process.env.PINGABLE_ROLE_ID!);
 
     if (!role) {
-      console.error("Pingable role not found!");
+      logger.error("Pingable role not found!");
       return;
     }
 

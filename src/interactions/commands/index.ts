@@ -1,11 +1,12 @@
-import { ChatInputCommandInteraction, Collection } from "discord.js";
-import { Command } from "../../types/Command";
-import { command as queryCommand } from "./query";
-import { command as serversCommand } from "./servers";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import logger from "../../utils/logger";
 
-const commands = new Collection<string, Command>();
-commands.set(queryCommand.data.name, queryCommand);
-commands.set(serversCommand.data.name, serversCommand);
+export interface Command {
+  data: SlashCommandBuilder;
+  execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
+}
+
+const commands = new Map<string, Command>();
 
 export async function handleCommandInteraction(
   interaction: ChatInputCommandInteraction
@@ -13,24 +14,23 @@ export async function handleCommandInteraction(
   const command = commands.get(interaction.commandName);
 
   if (!command) {
-    console.error(`No handler found for command: ${interaction.commandName}`);
+    logger.warn(`No handler found for command: ${interaction.commandName}`);
+    await interaction.reply({
+      content: "This command is not supported.",
+      ephemeral: true,
+    });
     return;
   }
 
   try {
     await command.execute(interaction);
+    logger.debug(`Successfully executed command: ${interaction.commandName}`);
   } catch (error) {
-    console.error(`Error handling command ${interaction.commandName}:`, error);
-    if (!interaction.replied && !interaction.deferred) {
-      await interaction.reply({
-        content: "There was an error executing this command!",
-        ephemeral: true,
-      });
-    } else {
-      await interaction.editReply({
-        content: "There was an error executing this command!",
-      });
-    }
+    logger.error(`Error handling command ${interaction.commandName}:`, error);
+    await interaction.reply({
+      content: "An error occurred while executing this command.",
+      ephemeral: true,
+    });
   }
 }
 
