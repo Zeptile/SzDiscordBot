@@ -1,9 +1,7 @@
 import { Client, TextChannel, EmbedBuilder } from "discord.js";
-import { db } from "../db";
-import { reactionRoleMessages } from "../db/schema";
-import { eq } from "drizzle-orm";
 import { getAssetPath } from "../utils/getAssetPath";
 import logger from "../utils/logger";
+import { reactionRoleMessageRepository } from "../db/repositories/ReactionRoleMessageRepository";
 
 const REACTION_EMOJI = "🔔";
 const ROLE_MESSAGE_TITLE = "Get Notified";
@@ -21,44 +19,35 @@ export async function createRoleMessage(channel: TextChannel) {
 
   const message = await channel.send({
     embeds: [embed],
-    files: [
-      {
-        attachment: assetPath,
-        name: "SZ_LOGO_256.png",
-      },
-    ],
+    files: [{ attachment: assetPath, name: "SZ_LOGO_256.png" }],
   });
 
   await message.react(REACTION_EMOJI);
 
-  await db.insert(reactionRoleMessages).values({
+  const roleMessage = await reactionRoleMessageRepository.create({
     channelId: channel.id,
     messageId: message.id,
     roleId: process.env.PINGABLE_ROLE_ID!,
     emoji: REACTION_EMOJI,
   });
 
-  return message.id;
+  return roleMessage.messageId;
 }
 
 async function getOrCreateRoleMessage(channel: TextChannel) {
-  const results = await db
-    .select()
-    .from(reactionRoleMessages)
-    .where(eq(reactionRoleMessages.channelId, channel.id));
+  const existingMessage = await reactionRoleMessageRepository.findOne({
+    channelId: channel.id,
+  });
 
-  if (results.length <= 0) return await createRoleMessage(channel);
-
-  const existingMessage = results[0];
+  if (!existingMessage) return await createRoleMessage(channel);
 
   try {
     await channel.messages.fetch(existingMessage.messageId);
     return existingMessage.messageId;
   } catch (error) {
-    await db
-      .delete(reactionRoleMessages)
-      .where(eq(reactionRoleMessages.messageId, existingMessage.messageId));
-
+    await reactionRoleMessageRepository.delete({
+      messageId: existingMessage.messageId,
+    });
     return await createRoleMessage(channel);
   }
 }
