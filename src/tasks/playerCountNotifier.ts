@@ -1,10 +1,12 @@
 import { Client, TextChannel } from "discord.js";
 import { Task } from "../types/Task";
 import { ServerQuery } from "../utils/ServerQuery";
-import config from "../config/servers.json";
 import { createServerEmbed } from "../utils/createServerEmbed";
 import logger from "../utils/logger";
 import { reactionRoleMessageRepository } from "../db/repositories/ReactionRoleMessageRepository";
+import { gameServerRepository } from "../db/repositories/GameServerRepository";
+import { botConfigRepository } from "../db/repositories/BotConfigRepository";
+import type { GameServer } from "../db/repositories/GameServerRepository";
 
 interface ServerState {
   currentPlayers: number;
@@ -13,25 +15,39 @@ interface ServerState {
 
 const serverStates = new Map<string, ServerState>();
 
-// Initialize server states
-config.servers.forEach((server) => {
-  serverStates.set(`${server.host}:${server.port}`, {
-    currentPlayers: 0,
-    notifiedThresholds: new Set(),
-  });
-});
+async function initializeServerStates() {
+  try {
+    const servers = await gameServerRepository.getAllServers();
+    serverStates.clear();
 
-async function checkServer(client: Client, server: (typeof config.servers)[0]) {
+    servers.forEach((server) => {
+      serverStates.set(`${server.host}:${server.port}`, {
+        currentPlayers: 0,
+        notifiedThresholds: new Set(),
+      });
+    });
+  } catch (error) {
+    logger.error("Failed to initialize server states:", error);
+  }
+}
+
+async function checkServer(client: Client, server: GameServer) {
   const query = new ServerQuery(server.host, server.port);
   const serverKey = `${server.host}:${server.port}`;
-  const state = serverStates.get(serverKey)!;
+  const state = serverStates.get(serverKey);
+
+  if (!state) {
+    logger.error(`No state found for server ${serverKey}`);
+    return;
+  }
 
   try {
     const info = await query.getServerInfo();
     const playerCount = info.players;
+    const thresholds = await botConfigRepository.getPlayerThresholds();
 
     if (playerCount > state.currentPlayers) {
-      for (const threshold of config.playerThresholds) {
+      for (const threshold of thresholds) {
         if (
           playerCount < threshold ||
           state.notifiedThresholds.has(threshold)
@@ -85,8 +101,16 @@ export const task: Task = {
   interval: 30000, // Check every 30 seconds
 
   async execute(client: Client) {
-    for (const server of config.servers) {
-      await checkServer(client, server);
+    try {
+      // Refresh server states to catch any new or removed servers
+      await initializeServerStates();
+
+      const servers = await gameServerRepository.getAllServers();
+      for (const server of servers) {
+        await checkServer(client, server);
+      }
+    } catch (error) {
+      logger.error("Error in playerCountNotifier task:", error);
     }
   },
 };
