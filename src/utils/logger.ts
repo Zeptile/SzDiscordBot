@@ -4,10 +4,9 @@ import path from "path";
 
 const { combine, timestamp, printf, colorize } = winston.format;
 
-// Custom format to include the caller information
 const callerFormat = winston.format((info) => {
   const stackTrace = new Error().stack;
-  const callerLine = stackTrace?.split("\n")[3]; // Get the caller's line
+  const callerLine = stackTrace?.split("\n")[3];
   if (callerLine) {
     const match = callerLine.match(/\((.+)\)/);
     if (match) {
@@ -18,12 +17,10 @@ const callerFormat = winston.format((info) => {
   return info;
 });
 
-// Custom format for console and file output
 const logFormat = printf(({ level, message, timestamp, caller }) => {
   return `${timestamp} [${level}] ${caller ? `(${caller})` : ""}: ${message}`;
 });
 
-// Create the logger
 const logger = winston.createLogger({
   level: "info",
   format: combine(
@@ -32,7 +29,6 @@ const logger = winston.createLogger({
     logFormat
   ),
   transports: [
-    // Console transport with colors
     new winston.transports.Console({
       format: combine(
         colorize({ all: true }),
@@ -40,14 +36,12 @@ const logger = winston.createLogger({
         logFormat
       ),
     }),
-    // Rotating file transport for errors
     new winston.transports.DailyRotateFile({
       filename: "logs/error-%DATE%.log",
       datePattern: "YYYY-MM-DD",
       level: "error",
       maxFiles: "14d",
     }),
-    // Rotating file transport for all logs
     new winston.transports.DailyRotateFile({
       filename: "logs/combined-%DATE%.log",
       datePattern: "YYYY-MM-DD",
