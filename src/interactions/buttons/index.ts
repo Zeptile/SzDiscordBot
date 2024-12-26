@@ -1,4 +1,5 @@
 import { ButtonInteraction } from "discord.js";
+import logger from "../../utils/logger";
 
 type ButtonHandler = (interaction: ButtonInteraction) => Promise<void>;
 
@@ -17,14 +18,14 @@ export async function handleButtonInteraction(interaction: ButtonInteraction) {
   const handler = buttonHandlers.get(handlerId);
 
   if (!handler) {
-    console.error(`No handler found for button: ${handlerId}`);
+    logger.error(`No handler found for button: ${handlerId}`);
     return;
   }
 
   try {
     await handler(interaction);
   } catch (error) {
-    console.error(`Error handling button ${handlerId}:`, error);
+    logger.error(`Error handling button ${handlerId}:`, error);
     await interaction.reply({
       content: "There was an error processing this button!",
       ephemeral: true,

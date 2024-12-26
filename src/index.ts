@@ -4,11 +4,19 @@ import commands from "./interactions/commands";
 import { initializeTasks } from "./tasks";
 import { handleButtonInteraction } from "./interactions/buttons";
 import { handleCommandInteraction } from "./interactions/commands";
+import { setupReactionRole } from "./reactions/reactionRole";
+import { initializeDatabase } from "./db";
+import logger from "./utils/logger";
 
 config();
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildMessages,
+  ],
 });
 
 const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN!);
@@ -18,12 +26,18 @@ client.once("ready", async () => {
     await rest.put(Routes.applicationCommands(process.env.CLIENT_ID!), {
       body: [...commands.values()].map((command) => command.data.toJSON()),
     });
-    console.log("Bot is ready and commands are registered!");
+    logger.info("Bot is ready and commands are registered!");
 
-    // Initialize tasks
+    await initializeDatabase();
+    logger.info("Database initialized successfully");
+
+    await setupReactionRole(client);
+    logger.info("Reaction roles setup completed");
+
     initializeTasks(client);
+    logger.info("Tasks initialization completed");
   } catch (error) {
-    console.error(error);
+    logger.error("Error during bot initialization:", error);
   }
 });
 

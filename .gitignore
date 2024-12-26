@@ -40,4 +40,8 @@ coverage/
 .eslintcache
 
 # Docker
-.docker/ 
+.docker/
+
+# Database
+*.db
+*.db-journal 
