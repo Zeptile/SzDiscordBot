@@ -6,12 +6,22 @@ const { combine, timestamp, printf, colorize } = winston.format;
 
 const callerFormat = winston.format((info) => {
   const stackTrace = new Error().stack;
-  const callerLine = stackTrace?.split("\n")[3];
-  if (callerLine) {
-    const match = callerLine.match(/\((.+)\)/);
-    if (match) {
-      const fullPath = match[1].split(":")[0];
-      info.caller = path.relative(process.cwd(), fullPath);
+  if (stackTrace) {
+    const lines = stackTrace.split("\n");
+    // Find the first line that's from our application code
+    for (const line of lines) {
+      if (
+        !line.includes("node_modules/") &&
+        !line.includes("utils/logger.ts") &&
+        line.includes("(")
+      ) {
+        const match = line.match(/\((.+?):(\d+):/);
+        if (match) {
+          const [, fullPath, lineNumber] = match;
+          info.caller = `${path.relative(process.cwd(), fullPath)}:${lineNumber}`;
+          break;
+        }
+      }
     }
   }
   return info;
