@@ -25,7 +25,7 @@ export abstract class BaseRepository<
       }
     }
 
-    return conditions.length > 0 ? conditions : [eq(this.table.id, -1)];
+    return conditions;
   }
 
   async findOne(criteria: Partial<T>): Promise<T | null> {

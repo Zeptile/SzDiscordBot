@@ -23,8 +23,17 @@ const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN!);
 
 client.once("ready", async () => {
   try {
+    logger.info("Registering commands...");
+    logger.info(
+      `Found ${commands.size} commands to register: ${[...commands.keys()].join(", ")}`
+    );
+
+    const commandData = [...commands.values()].map((command) => {
+      return command.data.toJSON();
+    });
+
     await rest.put(Routes.applicationCommands(process.env.CLIENT_ID!), {
-      body: [...commands.values()].map((command) => command.data.toJSON()),
+      body: commandData,
     });
     logger.info("Bot is ready and commands are registered!");
 
