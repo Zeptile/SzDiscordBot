@@ -13,7 +13,7 @@ export const command: Command = {
         .setName("input")
         .setDescription("Server hostname:port or steam://connect URL")
         .setRequired(true)
-    ),
+    ) as SlashCommandBuilder,
 
   async execute(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();

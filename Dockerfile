@@ -34,4 +34,6 @@ VOLUME ["/app/data"]
 
 ENV SQLITE_DB_PATH=/app/data/sz-discord-bot.db
 
+RUN node dist/db/migrations/migrate-servers.js
+
 CMD ["node", "dist/index.js"] 

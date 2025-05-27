@@ -2,13 +2,13 @@
   "baseUrl": "https://snipezilla.com/steam",
   "servers": [
     {
-      "host": "64.74.97.164",
+      "host": "104.153.108.3",
       "port": 27015,
       "name": "Snipin's a good job, mate!",
       "friendlyName": "All Maps Server"
     },
     {
-      "host": "64.74.97.164",
+      "host": "104.153.108.3",
       "port": 27016,
       "name": "You call that snipin'?",
       "friendlyName": "Orange Server"

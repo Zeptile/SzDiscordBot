@@ -1,12 +1,25 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction } from "discord.js";
 import logger from "../../utils/logger";
-
-export interface Command {
-  data: SlashCommandBuilder;
-  execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
-}
+import { Command } from "../../types/Command";
+import { command as query } from "./query";
+import { command as config } from "./config";
+import { command as serverAdmin } from "./server-admin";
+import { command as servers } from "./servers";
 
 const commands = new Map<string, Command>();
+
+// Register all commands
+logger.info("Registering command: " + query.data.name);
+commands.set(query.data.name, query);
+
+logger.info("Registering command: " + config.data.name);
+commands.set(config.data.name, config);
+
+logger.info("Registering command: " + serverAdmin.data.name);
+commands.set(serverAdmin.data.name, serverAdmin);
+
+logger.info("Registering command: " + servers.data.name);
+commands.set(servers.data.name, servers);
 
 export async function handleCommandInteraction(
   interaction: ChatInputCommandInteraction
