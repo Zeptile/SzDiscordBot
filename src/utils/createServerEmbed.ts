@@ -19,6 +19,8 @@ export function createServerEmbed(
     (s) => s.host === host && s.port === port
   );
 
+  const actualPlayerCount = info.players - info.bots;
+
   const ipValue = server
     ? `Join: [${host}:${port}](${serversConfig.baseUrl}?${host}:${port})`
     : `${host}:${port}`;
@@ -30,7 +32,7 @@ export function createServerEmbed(
       { name: "Game", value: info.game, inline: true },
       {
         name: "Players",
-        value: `${info.players}/${info.maxPlayers} (${info.bots} bots)`,
+        value: `${actualPlayerCount}/${info.maxPlayers} (${info.bots} bots)`,
         inline: true,
       },
       { name: "Version", value: info.version, inline: true },

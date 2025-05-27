@@ -42,17 +42,6 @@ const logger = winston.createLogger({
         logFormat
       ),
     }),
-    new winston.transports.DailyRotateFile({
-      filename: "logs/error-%DATE%.log",
-      datePattern: "YYYY-MM-DD",
-      level: "error",
-      maxFiles: "14d",
-    }),
-    new winston.transports.DailyRotateFile({
-      filename: "logs/combined-%DATE%.log",
-      datePattern: "YYYY-MM-DD",
-      maxFiles: "14d",
-    }),
     new winston.transports.Http({
       format: combine(
         json(),

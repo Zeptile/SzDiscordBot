@@ -2,15 +2,17 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   PermissionFlagsBits,
+  GuildMember,
 } from "discord.js";
 import { Command } from "../../types/Command";
 import { gameServerRepository } from "../../db/repositories/GameServerRepository";
 import logger from "../../utils/logger";
 
+const adminRoleId = process.env.ADMIN_ROLE_ID;
+
 const commandBuilder = new SlashCommandBuilder()
   .setName("server-admin")
   .setDescription("Manage game servers")
-  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addSubcommand((subcommand) =>
     subcommand
       .setName("add")
@@ -70,6 +72,24 @@ export const command: Command = {
     await interaction.deferReply({ ephemeral: true });
 
     try {
+      if (!adminRoleId) {
+        throw new Error(
+          "ADMIN_ROLE_ID is not configured in environment variables"
+        );
+      }
+
+      const member = interaction.member as GuildMember;
+      if (
+        !member ||
+        !("roles" in member) ||
+        !member.roles.cache.has(adminRoleId)
+      ) {
+        await interaction.editReply({
+          content: "You don't have permission to use this command.",
+        });
+        return;
+      }
+
       const subcommand = interaction.options.getSubcommand();
 
       switch (subcommand) {

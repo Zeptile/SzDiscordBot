@@ -41,14 +41,10 @@ export const command: Command = {
 
       // Get the selected server
       const serverString = interaction.options.getString("server", true);
-      const selectedServer = servers.find(
-        (s) => `${s.host}:${s.port}` === serverString
-      );
+      const selectedServer = servers.find((s) => s.name === serverString);
 
       if (!selectedServer) {
-        const choices = servers.map(
-          (s) => `${s.friendlyName} (${s.host}:${s.port})`
-        );
+        const choices = servers.map((s) => `${s.name}: (${s.host}:${s.port})`);
         await interaction.editReply({
           embeds: [
             {

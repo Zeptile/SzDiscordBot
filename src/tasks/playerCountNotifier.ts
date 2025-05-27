@@ -44,12 +44,16 @@ async function checkServer(client: Client, server: GameServer) {
   try {
     const info = await query.getServerInfo();
     const playerCount = info.players;
+    const botCount = info.bots;
+
+    const actualPlayerCount = playerCount - botCount;
+
     const thresholds = await botConfigRepository.getPlayerThresholds();
 
-    if (playerCount > state.currentPlayers) {
+    if (actualPlayerCount > state.currentPlayers) {
       for (const threshold of thresholds) {
         if (
-          playerCount < threshold ||
+          actualPlayerCount < threshold ||
           state.notifiedThresholds.has(threshold)
         ) {
           continue;
@@ -75,22 +79,22 @@ async function checkServer(client: Client, server: GameServer) {
           });
 
         await channel.send({
-          content: `${roleMention}🎮 **${server.name}** has reached ${playerCount} players!`,
+          content: `${roleMention}🎮 **${server.friendlyName}** has reached ${playerCount} players!`,
           ...createServerEmbed(info, server.host, server.port),
         });
 
         state.notifiedThresholds.add(threshold);
       }
-    } else if (playerCount < state.currentPlayers) {
+    } else if (actualPlayerCount < state.currentPlayers) {
       // If player count decreased, only reset thresholds that are now below the current count
       for (const threshold of state.notifiedThresholds) {
-        if (playerCount < threshold) {
+        if (actualPlayerCount < threshold) {
           state.notifiedThresholds.delete(threshold);
         }
       }
     }
 
-    state.currentPlayers = playerCount;
+    state.currentPlayers = actualPlayerCount;
   } catch (error) {
     logger.error(`Failed to query ${server.name}:`, error);
   }

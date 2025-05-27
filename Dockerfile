@@ -33,11 +33,7 @@ USER node
 VOLUME ["/app/data"]
 
 ENV SQLITE_DB_PATH=/app/data/sz-discord-bot.db
-ENV NODE_ENV=production
 
-# Run migrations before starting the application
-COPY --from=builder /app/src/db/migrations ./src/db/migrations
-RUN npm install ts-node typescript
-RUN npx ts-node src/db/migrations/migrate-servers.ts
+RUN node dist/db/migrations/migrate-servers.js
 
 CMD ["node", "dist/index.js"] 

@@ -45,8 +45,10 @@ export const task: Task = {
         await guild.members.me?.setNickname(`${server.friendlyName}`);
       });
 
+      const actualPlayerCount = info.players - info.bots;
+
       client.user?.setActivity({
-        name: `${info.players}/${info.maxPlayers} ${info.map}`,
+        name: `${actualPlayerCount}/${info.maxPlayers} ${info.map}`,
         type: ActivityType.Playing,
       });
 
