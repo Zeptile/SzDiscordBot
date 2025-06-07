@@ -24,6 +24,10 @@ export class GameServerRepository extends BaseRepository<
   async getAllServers(): Promise<GameServer[]> {
     return this.findMany({});
   }
+
+  async getServerByName(name: string): Promise<GameServer | null> {
+    return this.findOne({ name });
+  }
 }
 
 export const gameServerRepository = new GameServerRepository();

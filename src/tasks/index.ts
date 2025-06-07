@@ -11,6 +11,11 @@ export async function initializeTasks(client: Client) {
     logger.info(`Initializing task: ${task.name}`);
 
     try {
+      if (task.initialize) {
+        logger.info(`Running initialization for task: ${task.name}`);
+        await task.initialize(client);
+      }
+
       await task.execute(client);
     } catch (error) {
       logger.error(`Error executing task ${task.name}:`, error);

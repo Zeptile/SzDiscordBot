@@ -1,5 +1,7 @@
-import { Client, GatewayIntentBits, REST, Routes } from "discord.js";
 import { config } from "dotenv";
+config();
+
+import { Client, GatewayIntentBits, REST, Routes } from "discord.js";
 import commands from "./interactions/commands";
 import { initializeTasks } from "./tasks";
 import { handleButtonInteraction } from "./interactions/buttons";
@@ -7,8 +9,6 @@ import { handleCommandInteraction } from "./interactions/commands";
 import { setupReactionRole } from "./reactions/reactionRole";
 import { initializeDatabase } from "./db";
 import logger from "./utils/logger";
-
-config();
 
 const client = new Client({
   intents: [

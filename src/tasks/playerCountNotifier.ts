@@ -31,9 +31,21 @@ async function initializeServerStates() {
   }
 }
 
+async function ensureServerState(server: GameServer) {
+  const serverKey = `${server.host}:${server.port}`;
+  if (!serverStates.has(serverKey)) {
+    serverStates.set(serverKey, {
+      currentPlayers: 0,
+      notifiedThresholds: new Set(),
+    });
+  }
+}
+
 async function checkServer(client: Client, server: GameServer) {
   const query = new ServerQuery(server.host, server.port);
   const serverKey = `${server.host}:${server.port}`;
+
+  await ensureServerState(server);
   const state = serverStates.get(serverKey);
 
   if (!state) {
@@ -51,21 +63,21 @@ async function checkServer(client: Client, server: GameServer) {
     const thresholds = await botConfigRepository.getPlayerThresholds();
 
     if (actualPlayerCount > state.currentPlayers) {
-      for (const threshold of thresholds) {
-        if (
-          actualPlayerCount < threshold ||
-          state.notifiedThresholds.has(threshold)
-        ) {
-          continue;
-        }
+      const sortedThresholds = thresholds.sort((a, b) => a - b);
+      const nextThreshold = sortedThresholds.find(
+        (threshold) =>
+          actualPlayerCount >= threshold &&
+          !state.notifiedThresholds.has(threshold)
+      );
 
+      if (nextThreshold) {
         const channel = client.channels.cache.get(
           process.env.NOTIFICATION_CHANNEL_ID!
         ) as TextChannel;
 
         if (!channel) {
           logger.error("Notification channel not found");
-          continue;
+          return;
         }
 
         const roleMention = await reactionRoleMessageRepository
@@ -79,11 +91,11 @@ async function checkServer(client: Client, server: GameServer) {
           });
 
         await channel.send({
-          content: `${roleMention}🎮 **${server.friendlyName}** has reached ${playerCount} players!`,
+          content: `${roleMention}🎮 **${server.friendlyName}** has reached ${actualPlayerCount} players!`,
           ...createServerEmbed(info, server.host, server.port),
         });
 
-        state.notifiedThresholds.add(threshold);
+        state.notifiedThresholds.add(nextThreshold);
       }
     } else if (actualPlayerCount < state.currentPlayers) {
       // If player count decreased, only reset thresholds that are now below the current count
@@ -102,13 +114,14 @@ async function checkServer(client: Client, server: GameServer) {
 
 export const task: Task = {
   name: "playerCountNotifier",
-  interval: 30000, // Check every 30 seconds
+  interval: 30000,
+
+  async initialize(client: Client) {
+    await initializeServerStates();
+  },
 
   async execute(client: Client) {
     try {
-      // Refresh server states to catch any new or removed servers
-      await initializeServerStates();
-
       const servers = await gameServerRepository.getAllServers();
       for (const server of servers) {
         await checkServer(client, server);
