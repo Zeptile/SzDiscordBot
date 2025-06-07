@@ -69,7 +69,7 @@ export const command: Command = {
   data: commandBuilder,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply();
 
     try {
       if (!adminRoleId) {

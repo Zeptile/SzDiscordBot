@@ -22,35 +22,17 @@ export const command: Command = {
     await interaction.deferReply();
 
     try {
-      // Get the latest server list
-      const servers = await gameServerRepository.getAllServers();
+      const serverString = interaction.options.getString("server", true);
+      const selectedServer =
+        await gameServerRepository.getServerByName(serverString);
 
-      if (servers.length === 0) {
+      if (!selectedServer) {
         await interaction.editReply({
           embeds: [
             {
               title: "Error",
-              description:
-                "No servers are configured. Please ask an administrator to add some servers.",
+              description: `Server ${serverString} not found.`,
               color: 0xff0000,
-            },
-          ],
-        });
-        return;
-      }
-
-      // Get the selected server
-      const serverString = interaction.options.getString("server", true);
-      const selectedServer = servers.find((s) => s.name === serverString);
-
-      if (!selectedServer) {
-        const choices = servers.map((s) => `${s.name}: (${s.host}:${s.port})`);
-        await interaction.editReply({
-          embeds: [
-            {
-              title: "Available Servers",
-              description: choices.join("\n"),
-              color: 0x00ff00,
             },
           ],
         });

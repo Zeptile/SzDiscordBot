@@ -6,25 +6,18 @@ import { command as config } from "./config";
 import { command as serverAdmin } from "./server-admin";
 import { command as servers } from "./servers";
 
-const commands = new Map<string, Command>();
+const commands = [query, config, serverAdmin, servers];
+const commandsCache = new Map<string, Command>();
 
-// Register all commands
-logger.info("Registering command: " + query.data.name);
-commands.set(query.data.name, query);
-
-logger.info("Registering command: " + config.data.name);
-commands.set(config.data.name, config);
-
-logger.info("Registering command: " + serverAdmin.data.name);
-commands.set(serverAdmin.data.name, serverAdmin);
-
-logger.info("Registering command: " + servers.data.name);
-commands.set(servers.data.name, servers);
+for (const command of commands) {
+  logger.info("Registering command: " + command.data.name);
+  commandsCache.set(command.data.name, command);
+}
 
 export async function handleCommandInteraction(
   interaction: ChatInputCommandInteraction
 ) {
-  const command = commands.get(interaction.commandName);
+  const command = commandsCache.get(interaction.commandName);
 
   if (!command) {
     logger.warn(`No handler found for command: ${interaction.commandName}`);
@@ -47,4 +40,4 @@ export async function handleCommandInteraction(
   }
 }
 
-export default commands;
+export default commandsCache;
