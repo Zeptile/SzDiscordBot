@@ -25,9 +25,13 @@ export const command: Command = {
       const query = new ServerQuery(serverInfo.host, serverInfo.port);
       const info = await query.getServerInfo();
 
-      await interaction.editReply(
-        createServerEmbed(info, serverInfo.host, serverInfo.port)
+      const embed = await createServerEmbed(
+        info,
+        serverInfo.host,
+        serverInfo.port
       );
+
+      await interaction.editReply(embed);
     } catch (error) {
       await interaction.editReply({
         embeds: [
