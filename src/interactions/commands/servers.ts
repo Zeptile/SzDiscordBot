@@ -41,10 +41,13 @@ export const command: Command = {
 
       const query = new ServerQuery(selectedServer.host, selectedServer.port);
       const info = await query.getServerInfo();
-
-      await interaction.editReply(
-        createServerEmbed(info, selectedServer.host, selectedServer.port)
+      const embed = await createServerEmbed(
+        info,
+        selectedServer.host,
+        selectedServer.port
       );
+
+      await interaction.editReply(embed);
     } catch (error) {
       logger.error("Error in servers command:", error);
       await interaction.editReply({

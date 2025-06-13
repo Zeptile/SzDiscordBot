@@ -6,23 +6,23 @@ import {
 } from "discord.js";
 import { ServerInfo } from "../types/ServerInfo";
 import { getAssetPath } from "./getAssetPath";
-import serversConfig from "../config/servers.json";
+import { gameServerRepository } from "../db/repositories/GameServerRepository";
+import { botConfigRepository } from "../db/repositories/BotConfigRepository";
 
-export function createServerEmbed(
+export async function createServerEmbed(
   info: ServerInfo,
   host: string,
   port: number
 ) {
   const assetPath = getAssetPath("SZ_LOGO_256.png");
 
-  const server = serversConfig.servers.find(
-    (s) => s.host === host && s.port === port
-  );
+  const server = await gameServerRepository.findOne({ host, port });
+  const baseUrl = await botConfigRepository.getBaseUrl();
 
   const actualPlayerCount = info.players - info.bots;
 
   const ipValue = server
-    ? `Join: [${host}:${port}](${serversConfig.baseUrl}?${host}:${port})`
+    ? `Join: [${host}:${port}](${baseUrl}?${host}:${port})`
     : `${host}:${port}`;
 
   const embed = new EmbedBuilder()

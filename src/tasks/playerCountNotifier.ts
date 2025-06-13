@@ -90,9 +90,11 @@ async function checkServer(client: Client, server: GameServer) {
             return "";
           });
 
+        const embed = await createServerEmbed(info, server.host, server.port);
+
         await channel.send({
           content: `${roleMention}🎮 **${server.friendlyName}** has reached ${actualPlayerCount} players!`,
-          ...createServerEmbed(info, server.host, server.port),
+          ...embed,
         });
 
         state.notifiedThresholds.add(nextThreshold);
