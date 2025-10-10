@@ -18,6 +18,7 @@ A Discord Server Query Bot that implements the Valve Source Engine Query Protoco
 - `/server-admin remove` - Remove servers by ID
 - `/server-admin update` - Update existing server configurations
 - `/server-admin list` - List all configured servers with IDs
+- `/server-admin set-thumbnail` - Set a custom thumbnail URL for server embeds
 
 ### Configuration Management
 
@@ -31,6 +32,10 @@ A Discord Server Query Bot that implements the Valve Source Engine Query Protoco
 - Player count notifications with configurable thresholds
 - Bot status shows current server player count and map
 - Smart threshold notifications (only triggers once per threshold until players drop below)
+- **Server Status Channel** - Dedicated channel with auto-updating embeds for all servers
+  - Creates one embed per server with live information
+  - Updates every 30 seconds automatically
+  - Managed through `SERVER_STATUS_CHANNEL_ID` environment variable
 
 ### Role-based Notifications
 
@@ -53,6 +58,7 @@ A Discord Server Query Bot that implements the Valve Source Engine Query Protoco
 - Player counts with bot detection (shows actual human players)
 - VAC status and server version
 - One-click join button with configurable base URL
+- Custom thumbnail support for server embeds (per-server configuration)
 
 ## Requirements
 
@@ -70,6 +76,7 @@ A Discord Server Query Bot that implements the Valve Source Engine Query Protoco
    DISCORD_TOKEN=your_discord_bot_token
    CLIENT_ID=your_discord_application_id
    NOTIFICATION_CHANNEL_ID=your_notification_channel_id
+   SERVER_STATUS_CHANNEL_ID=your_server_status_channel_id
    ROLE_CHANNEL_ID=channel_id_for_reaction_roles
    PINGABLE_ROLE_ID=role_id_to_assign_for_notifications
    ADMIN_ROLE_ID=role_id_for_server_admin_commands
@@ -129,9 +136,10 @@ npm start
 
 The bot uses SQLite for persistent storage with the following features:
 
-- Game servers configuration
+- Game servers configuration (host, port, name, friendly name, custom thumbnails)
 - Bot settings (base URL, player thresholds)
 - Reaction role message tracking
+- Server status message tracking (for real-time status channel)
 - Automatic schema migrations
 
 The database file is created automatically on first run.
