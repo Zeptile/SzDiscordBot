@@ -6,6 +6,41 @@ import { reactionRoleMessageRepository } from "../db/repositories/ReactionRoleMe
 const REACTION_EMOJI = "🔔";
 const ROLE_MESSAGE_TITLE = "Get Notified";
 
+/**
+ * Searches for an existing role message in the channel by matching its content.
+ * This is a fallback method when the database reference is lost.
+ */
+async function findRoleMessageByContent(
+  channel: TextChannel
+): Promise<string | null> {
+  try {
+    // Fetch recent messages (limit 100, should be enough for most cases)
+    const messages = await channel.messages.fetch({ limit: 100 });
+
+    for (const [messageId, message] of messages) {
+      // Check if message has embeds and matches our role message pattern
+      if (
+        message.embeds.length > 0 &&
+        message.embeds[0].title === ROLE_MESSAGE_TITLE &&
+        message.embeds[0].description?.includes(REACTION_EMOJI) &&
+        message.embeds[0].description?.includes(
+          "get notified when players join the server"
+        )
+      ) {
+        logger.info(
+          `Found existing role message by content search: ${messageId}`
+        );
+        return messageId;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    logger.error("Failed to search for role message by content:", error);
+    return null;
+  }
+}
+
 export async function createRoleMessage(channel: TextChannel) {
   try {
     const assetPath = getAssetPath("SZ_LOGO_256.png");
@@ -55,8 +90,31 @@ async function getOrCreateRoleMessage(channel: TextChannel) {
       return existingMessage.messageId;
     } catch (error) {
       logger.warn(
-        `Existing message ${existingMessage.messageId} not found, creating new one`
+        `Existing message ${existingMessage.messageId} not found, attempting content-based search`
       );
+
+      // Try to find the message by content before creating a new one
+      const foundMessageId = await findRoleMessageByContent(channel);
+
+      if (foundMessageId) {
+        // Update the database with the found message
+        await reactionRoleMessageRepository.delete({
+          messageId: existingMessage.messageId,
+        });
+        await reactionRoleMessageRepository.create({
+          channelId: channel.id,
+          messageId: foundMessageId,
+          roleId: process.env.PINGABLE_ROLE_ID!,
+          emoji: REACTION_EMOJI,
+        });
+        logger.info(
+          `Updated database with found message ${foundMessageId}, avoiding duplicate`
+        );
+        return foundMessageId;
+      }
+
+      // Only create a new message if we couldn't find it by content
+      logger.info("Message not found by content search, creating new one");
       await reactionRoleMessageRepository.delete({
         messageId: existingMessage.messageId,
       });
