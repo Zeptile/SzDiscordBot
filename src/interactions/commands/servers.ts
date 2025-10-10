@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { AutocompleteInteraction, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { ServerQuery } from "../../utils/ServerQuery";
 import { Command } from "../../types/Command";
 import { createServerEmbed } from "../../utils/createServerEmbed";
@@ -13,6 +13,7 @@ const commandBuilder = new SlashCommandBuilder()
       .setName("server")
       .setDescription("Select a server to query")
       .setRequired(true)
+      .setAutocomplete(true)
   ) as SlashCommandBuilder;
 
 export const command: Command = {
@@ -24,14 +25,14 @@ export const command: Command = {
     try {
       const serverString = interaction.options.getString("server", true);
       const selectedServer =
-        await gameServerRepository.getServerByName(serverString);
+        await gameServerRepository.getServerByFriendlyName(serverString);
 
       if (!selectedServer) {
         await interaction.editReply({
           embeds: [
             {
               title: "Error",
-              description: `Server ${serverString} not found.`,
+              description: `Server "${serverString}" not found.`,
               color: 0xff0000,
             },
           ],
@@ -61,4 +62,8 @@ export const command: Command = {
       });
     }
   },
-};
+  async autocomplete(interaction: AutocompleteInteraction) {
+    const servers = await gameServerRepository.getAllServers();
+    return servers.map(server => server.friendlyName);
+  }
+}

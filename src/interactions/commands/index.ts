@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { AutocompleteInteraction, ChatInputCommandInteraction } from "discord.js";
 import logger from "../../utils/logger";
 import { Command } from "../../types/Command";
 import { command as query } from "./query";
@@ -37,6 +37,36 @@ export async function handleCommandInteraction(
       content: "An error occurred while executing this command.",
       ephemeral: true,
     });
+  }
+}
+
+
+export async function handleCommandAutoComplete(interaction: AutocompleteInteraction) {
+  try {
+    const command = commandsCache.get(interaction.commandName);
+
+    if (!command) {
+      logger.warn(`No handler found for command: ${interaction.commandName}`);
+      await interaction.respond([]);
+      return;
+    }
+
+    if (!command.autocomplete) {
+      logger.warn(`No autocomplete handler found for command: ${interaction.commandName}`);
+      await interaction.respond([]);
+      return;
+    }
+
+    const currentText = interaction.options.getFocused();
+
+    const choices = await command.autocomplete(interaction);
+    const filteredChoices = choices.filter(choice => choice.toLowerCase().startsWith(currentText))
+
+
+    await interaction.respond(filteredChoices.map(choice => ({ name: choice, value: choice })));
+  } catch (error) {
+    logger.error(`Error while trying to autocomplete command: ${interaction.commandName}`);
+
   }
 }
 

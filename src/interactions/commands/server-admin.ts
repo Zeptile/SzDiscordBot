@@ -1,4 +1,5 @@
 import {
+  AutocompleteInteraction,
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   PermissionFlagsBits,
@@ -40,16 +41,24 @@ const commandBuilder = new SlashCommandBuilder()
     subcommand
       .setName("remove")
       .setDescription("Remove a game server")
-      .addIntegerOption((option) =>
-        option.setName("id").setDescription("Server ID").setRequired(true)
+      .addStringOption((option) =>
+        option
+          .setName("server")
+          .setDescription("Server name")
+          .setRequired(true)
+          .setAutocomplete(true)
       )
   )
   .addSubcommand((subcommand) =>
     subcommand
       .setName("update")
       .setDescription("Update a game server")
-      .addIntegerOption((option) =>
-        option.setName("id").setDescription("Server ID").setRequired(true)
+      .addStringOption((option) =>
+        option
+          .setName("server")
+          .setDescription("Server name")
+          .setRequired(true)
+          .setAutocomplete(true)
       )
       .addStringOption((option) =>
         option.setName("host").setDescription("Server host")
@@ -67,6 +76,18 @@ const commandBuilder = new SlashCommandBuilder()
 
 export const command: Command = {
   data: commandBuilder,
+
+  async autocomplete(interaction: AutocompleteInteraction) {
+    const focusedOption = interaction.options.getFocused(true);
+    
+    // Only provide autocomplete for the "server" option
+    if (focusedOption.name === "server") {
+      const servers = await gameServerRepository.getAllServers();
+      return servers.map(server => server.friendlyName);
+    }
+    
+    return [];
+  },
 
   async execute(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
@@ -133,8 +154,17 @@ export const command: Command = {
         }
 
         case "remove": {
-          const id = interaction.options.getInteger("id", true);
-          await gameServerRepository.delete({ id });
+          const serverName = interaction.options.getString("server", true);
+          const server = await gameServerRepository.getServerByFriendlyName(serverName);
+          
+          if (!server) {
+            await interaction.editReply({
+              content: `Server "${serverName}" not found.`,
+            });
+            return;
+          }
+          
+          await gameServerRepository.delete({ id: server.id });
           await interaction.editReply({
             content: "Server removed successfully!",
           });
@@ -142,7 +172,16 @@ export const command: Command = {
         }
 
         case "update": {
-          const id = interaction.options.getInteger("id", true);
+          const serverName = interaction.options.getString("server", true);
+          const server = await gameServerRepository.getServerByFriendlyName(serverName);
+          
+          if (!server) {
+            await interaction.editReply({
+              content: `Server "${serverName}" not found.`,
+            });
+            return;
+          }
+          
           const host = interaction.options.getString("host");
           const port = interaction.options.getInteger("port");
           const name = interaction.options.getString("name");
@@ -161,7 +200,7 @@ export const command: Command = {
             return;
           }
 
-          await gameServerRepository.update({ id }, updates);
+          await gameServerRepository.update({ id: server.id }, updates);
           await interaction.editReply({
             content: "Server updated successfully!",
           });
