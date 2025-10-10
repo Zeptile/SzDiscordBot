@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { Command } from "../../types/Command";
 import { gameServerRepository } from "../../db/repositories/GameServerRepository";
+import { createServerStatusMessage, deleteServerStatusMessage } from "../../tasks/serverStatusChannel";
 import logger from "../../utils/logger";
 
 const adminRoleId = process.env.ADMIN_ROLE_ID;
@@ -72,6 +73,24 @@ const commandBuilder = new SlashCommandBuilder()
       .addStringOption((option) =>
         option.setName("friendly-name").setDescription("Server friendly name")
       )
+  )
+  .addSubcommand((subcommand) =>
+    subcommand
+      .setName("set-thumbnail")
+      .setDescription("Set a thumbnail URL for a game server")
+      .addStringOption((option) =>
+        option
+          .setName("server")
+          .setDescription("Server name")
+          .setRequired(true)
+          .setAutocomplete(true)
+      )
+      .addStringOption((option) =>
+        option
+          .setName("url")
+          .setDescription("Thumbnail URL (leave empty to remove)")
+          .setRequired(false)
+      )
   ) as SlashCommandBuilder;
 
 export const command: Command = {
@@ -123,15 +142,18 @@ export const command: Command = {
             true
           );
 
-          await gameServerRepository.create({
+          const newServer = await gameServerRepository.create({
             host,
             port,
             name,
             friendlyName,
           });
 
+          // Immediately create status message for the new server
+          await createServerStatusMessage(newServer);
+
           await interaction.editReply({
-            content: "Server added successfully!",
+            content: "Server added successfully! Status channel updated.",
           });
           break;
         }
@@ -164,9 +186,12 @@ export const command: Command = {
             return;
           }
           
+          // Delete status message before removing the server
+          await deleteServerStatusMessage(server.id);
+          
           await gameServerRepository.delete({ id: server.id });
           await interaction.editReply({
-            content: "Server removed successfully!",
+            content: "Server removed successfully! Status channel updated.",
           });
           break;
         }
@@ -204,6 +229,33 @@ export const command: Command = {
           await interaction.editReply({
             content: "Server updated successfully!",
           });
+          break;
+        }
+
+        case "set-thumbnail": {
+          const serverName = interaction.options.getString("server", true);
+          const thumbnailUrl = interaction.options.getString("url");
+          
+          const server = await gameServerRepository.getServerByFriendlyName(serverName);
+          
+          if (!server) {
+            await interaction.editReply({
+              content: `Server "${serverName}" not found.`,
+            });
+            return;
+          }
+          
+          await gameServerRepository.setThumbnailUrl(server.id, thumbnailUrl);
+          
+          if (thumbnailUrl) {
+            await interaction.editReply({
+              content: `Thumbnail URL set successfully for ${server.friendlyName}!`,
+            });
+          } else {
+            await interaction.editReply({
+              content: `Thumbnail URL removed for ${server.friendlyName}. Using default thumbnail.`,
+            });
+          }
           break;
         }
       }

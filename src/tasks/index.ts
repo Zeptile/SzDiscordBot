@@ -2,9 +2,10 @@ import { Client } from "discord.js";
 import { Task } from "../types/Task";
 import { task as updateServerStatus } from "./updateServerStatus";
 import { task as playerCountNotifier } from "./playerCountNotifier";
+import { task as serverStatusChannel } from "./serverStatusChannel";
 import logger from "../utils/logger";
 
-const tasks: Task[] = [updateServerStatus, playerCountNotifier];
+const tasks: Task[] = [updateServerStatus, playerCountNotifier, serverStatusChannel];
 
 export async function initializeTasks(client: Client) {
   for (const task of tasks) {
