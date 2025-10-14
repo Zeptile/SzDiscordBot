@@ -28,6 +28,10 @@ export class GameServerRepository extends BaseRepository<
   async getServerByName(name: string): Promise<GameServer | null> {
     return this.findOne({ name });
   }
+
+  async getServerByFriendlyName(friendlyName: string): Promise<GameServer | null> {
+    return this.findOne({ friendlyName });
+  }
 }
 
 export const gameServerRepository = new GameServerRepository();
