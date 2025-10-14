@@ -29,6 +29,7 @@ export async function initializeDatabase() {
       port INTEGER NOT NULL,
       name TEXT NOT NULL,
       friendly_name TEXT NOT NULL,
+      thumbnail_url TEXT,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
@@ -40,6 +41,20 @@ export async function initializeDatabase() {
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS server_status_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      server_id INTEGER NOT NULL,
+      channel_id TEXT NOT NULL,
+      message_id TEXT UNIQUE NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS game_servers_host_port_idx ON game_servers (host, port);
+    CREATE INDEX IF NOT EXISTS bot_config_key_idx ON bot_config (key);
+    CREATE INDEX IF NOT EXISTS server_status_messages_server_id_idx ON server_status_messages (server_id);
+    CREATE INDEX IF NOT EXISTS server_status_messages_channel_id_idx ON server_status_messages (channel_id);
   `);
 
   const baseUrl = db

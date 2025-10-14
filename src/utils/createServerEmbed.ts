@@ -14,8 +14,6 @@ export async function createServerEmbed(
   host: string,
   port: number
 ) {
-  const assetPath = getAssetPath("SZ_LOGO_256.png");
-
   const server = await gameServerRepository.findOne({ host, port });
   const baseUrl = await botConfigRepository.getBaseUrl();
 
@@ -48,16 +46,25 @@ export async function createServerEmbed(
       },
     ])
     .setColor(0xff0000)
-    .setThumbnail("attachment://SZ_LOGO_256.png")
     .setTimestamp();
 
-  return {
-    embeds: [embed],
-    files: [
-      {
-        attachment: assetPath,
-        name: "SZ_LOGO_256.png",
-      },
-    ],
-  };
+  // Use custom thumbnail if available, otherwise use default
+  if (server?.thumbnailUrl) {
+    embed.setThumbnail(server.thumbnailUrl);
+    return {
+      embeds: [embed],
+    };
+  } else {
+    const assetPath = getAssetPath("SZ_LOGO_256.png");
+    embed.setThumbnail("attachment://SZ_LOGO_256.png");
+    return {
+      embeds: [embed],
+      files: [
+        {
+          attachment: assetPath,
+          name: "SZ_LOGO_256.png",
+        },
+      ],
+    };
+  }
 }

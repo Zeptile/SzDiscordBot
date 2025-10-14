@@ -16,6 +16,7 @@ export class GameServerRepository extends BaseRepository<
       "port",
       "name",
       "friendlyName",
+      "thumbnailUrl",
       "createdAt",
       "updatedAt",
     ]);
@@ -31,6 +32,10 @@ export class GameServerRepository extends BaseRepository<
 
   async getServerByFriendlyName(friendlyName: string): Promise<GameServer | null> {
     return this.findOne({ friendlyName });
+  }
+
+  async setThumbnailUrl(serverId: number, thumbnailUrl: string | null): Promise<void> {
+    await this.update({ id: serverId }, { thumbnailUrl });
   }
 }
 

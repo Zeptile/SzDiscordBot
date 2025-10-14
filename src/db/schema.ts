@@ -27,6 +27,7 @@ export const gameServers = sqliteTable(
     port: integer("port", { mode: "number" }).notNull(),
     name: text("name").notNull(),
     friendlyName: text("friendly_name").notNull(),
+    thumbnailUrl: text("thumbnail_url"),
     createdAt: text("created_at")
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`),
@@ -51,4 +52,24 @@ export const botConfig = sqliteTable(
       .default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => [index("bot_config_key_idx").on(table.key)]
+);
+
+export const serverStatusMessages = sqliteTable(
+  "server_status_messages",
+  {
+    id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+    serverId: integer("server_id", { mode: "number" }).notNull(),
+    channelId: text("channel_id").notNull(),
+    messageId: text("message_id").notNull().unique(),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("server_status_messages_server_id_idx").on(table.serverId),
+    index("server_status_messages_channel_id_idx").on(table.channelId),
+  ]
 );
