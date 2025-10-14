@@ -60,7 +60,7 @@ export async function handleCommandAutoComplete(interaction: AutocompleteInterac
     const currentText = interaction.options.getFocused();
 
     const choices = await command.autocomplete(interaction);
-    const filteredChoices = choices.filter(choice => choice.toLowerCase().startsWith(currentText))
+    const filteredChoices = choices.filter(choice => choice.toLowerCase().startsWith(currentText.toLowerCase()))
 
 
     await interaction.respond(filteredChoices.map(choice => ({ name: choice, value: choice })));
