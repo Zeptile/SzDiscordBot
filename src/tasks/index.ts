@@ -3,9 +3,11 @@ import { Task } from "../types/Task";
 import { task as updateServerStatus } from "./updateServerStatus";
 import { task as playerCountNotifier } from "./playerCountNotifier";
 import { task as serverStatusChannel } from "./serverStatusChannel";
+import { task as syncServersFromUrl } from "./syncServersFromUrl";
 import logger from "../utils/logger";
 
-const tasks: Task[] = [updateServerStatus, playerCountNotifier, serverStatusChannel];
+// syncServersFromUrl runs first so the other tasks start with the latest list
+const tasks: Task[] = [syncServersFromUrl, updateServerStatus, playerCountNotifier, serverStatusChannel];
 
 export async function initializeTasks(client: Client) {
   for (const task of tasks) {
